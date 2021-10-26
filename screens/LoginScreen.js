@@ -12,21 +12,20 @@ const LoginScreen = ({ navigation }) => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        console.log("Logged in already");
+        console.log(authUser);
         navigation.replace("Home");
       }
     });
 
     return unsubscribe;
   }, []);
+
   const signIn = () => {
-    console.log("Login Pressed");
-    console.log(email, password);
+    auth.signInWithEmailAndPassword(email, password).catch((err) => alert(err));
   };
 
   const register = () => {
-    console.log("Register Pressed");
-    console.log(email, password);
+    navigation.navigate("Register");
   };
 
   return (
@@ -67,7 +66,7 @@ const LoginScreen = ({ navigation }) => {
         title="Register"
         type="outline"
         containerStyle={styles.button}
-        onPress={() => navigation.navigate("Register")}
+        onPress={register}
       />
       <View style={{ height: 50 }} />
     </KeyboardAvoidingView>
