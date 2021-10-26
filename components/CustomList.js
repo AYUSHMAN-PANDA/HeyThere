@@ -4,12 +4,15 @@ import { ListItem, Avatar } from "react-native-elements";
 
 const CustomList = ({ id, chatName, enterChat }) => {
   return (
-    <ListItem>
+    <ListItem key={id} bottomDivider>
       <Avatar rounded source={require("../assets/dp.png")} />
       <ListItem.Content>
-        <ListItem.Title style={{ fontWeight: "800" }}>Shah Rukh</ListItem.Title>
+        <ListItem.Title style={{ fontWeight: "800" }}>
+          {chatName}
+        </ListItem.Title>
         <ListItem.Subtitle numberOfLines={1} ellipsizeMode="tail">
-          Hey how to be disciplined like u in teenage
+          This is the last message sent This is the last message sent This is
+          the last message sent
         </ListItem.Subtitle>
       </ListItem.Content>
     </ListItem>

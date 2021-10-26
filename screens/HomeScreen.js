@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useState, useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -9,10 +9,12 @@ import {
 } from "react-native";
 import { Avatar } from "react-native-elements";
 import CustomList from "../components/CustomList";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { AntDesign, SimpleLineIcons } from "@expo/vector-icons";
 
 const HomeScreen = ({ navigation }) => {
+  const [chats, setChats] = useState([]);
+
   const signOut = () => {
     auth
       .signOut()
@@ -21,6 +23,17 @@ const HomeScreen = ({ navigation }) => {
       })
       .catch((err) => alert(err));
   };
+
+  useEffect(() => {
+    const unsubscribe = db.collection("chats").onSnapshot((snapshot) =>
+      setChats(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          data: doc.data(),
+        }))
+      )
+    );
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -41,7 +54,12 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity activeOpacity={0.5} style={{ marginRight: 20 }}>
             <AntDesign name="camerao" size={24} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.5}>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => {
+              navigation.navigate("AddChat");
+            }}
+          >
             <SimpleLineIcons name="pencil" size={24} color="black" />
           </TouchableOpacity>
         </View>
@@ -49,9 +67,11 @@ const HomeScreen = ({ navigation }) => {
     });
   }, []);
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <ScrollView>
-        <CustomList />
+        {chats.map(({ id, data: { chatName } }) => (
+          <CustomList key={id} id={id} chatName={chatName} />
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -60,6 +80,9 @@ const HomeScreen = ({ navigation }) => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    height: "100%",
+  },
   rightHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
