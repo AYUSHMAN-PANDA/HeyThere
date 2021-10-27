@@ -28,7 +28,7 @@ const AddChatScreen = ({ navigation }) => {
         onChangeText={(text) => setInput(text)}
         leftIcon={<Icon name="message-square" type="feather" />}
       />
-      <Button onPress={createChat} title="Create New Chat" />
+      <Button disabled={!input} onPress={createChat} title="Create New Chat" />
     </View>
   );
 };

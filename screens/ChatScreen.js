@@ -20,6 +20,7 @@ import * as firebase from "firebase";
 
 const ChatScreen = ({ navigation, route }) => {
   const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([]);
 
   const sendMessage = () => {
     Keyboard.dismiss();
@@ -42,7 +43,12 @@ const ChatScreen = ({ navigation, route }) => {
       headerTitleAlign: "left",
       headerTitle: () => (
         <View style={styles.headerTitle}>
-          <Avatar rounded source={require("../assets/dp.png")} />
+          <Avatar
+            rounded
+            source={{
+              uri: messages[0]?.data.photoURL,
+            }}
+          />
           <Text style={styles.headerText}>{route.params.chatName}</Text>
         </View>
       ),
@@ -66,7 +72,25 @@ const ChatScreen = ({ navigation, route }) => {
         </View>
       ),
     });
-  }, [navigation]);
+  }, [navigation, messages]);
+
+  useLayoutEffect(() => {
+    const unsubscribe = db
+      .collection("chats")
+      .doc(route.params.id)
+      .collection("messages")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) =>
+        setMessages(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data(),
+          }))
+        )
+      );
+
+    return unsubscribe;
+  }, [route]);
 
   return (
     <SafeAreaView style={styles.containerMain}>
@@ -78,7 +102,48 @@ const ChatScreen = ({ navigation, route }) => {
       >
         {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss()}> */}
         <>
-          <ScrollView></ScrollView>
+          <ScrollView style={{ paddingTop: 10 }}>
+            {messages.map(({ id, data }) =>
+              data.email === auth.currentUser.email ? (
+                <View key={id} style={styles.receiver}>
+                  <Avatar
+                    position="absolute"
+                    bottom={-10}
+                    right={-5}
+                    size={35}
+                    rounded
+                    source={{ uri: data.photoURL }}
+                  />
+                  <Text style={styles.receiverText}>{data.message}</Text>
+                  <Text style={{ fontSize: 10, fontWeight: "100" }}>Me</Text>
+                </View>
+              ) : (
+                <View key={id} style={styles.sender}>
+                  <Avatar
+                    position="absolute"
+                    bottom={-10}
+                    left={-5}
+                    size={35}
+                    rounded
+                    source={{ uri: data.photoURL }}
+                  />
+                  <Text style={{ color: "white" }}>{data.message}</Text>
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 10,
+                      fontWeight: "900",
+                      paddingTop: 5,
+                      paddingLeft: 5,
+                      bottom: 0,
+                    }}
+                  >
+                    {data.displayName}
+                  </Text>
+                </View>
+              )
+            )}
+          </ScrollView>
           <View style={styles.footer}>
             <TextInput
               value={input}
@@ -87,7 +152,11 @@ const ChatScreen = ({ navigation, route }) => {
               placeholder="Type Your Message.."
               style={styles.input}
             />
-            <TouchableOpacity onPress={sendMessage} activeOpacity={0.5}>
+            <TouchableOpacity
+              disabled={!input}
+              onPress={sendMessage}
+              activeOpacity={0.5}
+            >
               <Ionicons name="send" size={24} color="#2B68E6" />
             </TouchableOpacity>
           </View>
@@ -141,5 +210,26 @@ const styles = StyleSheet.create({
     padding: 10,
     color: "grey",
     borderRadius: 30,
+  },
+  receiver: {
+    padding: 15,
+    backgroundColor: "#ECECEC",
+    alignSelf: "flex-end",
+    borderRadius: 20,
+    marginRight: 15,
+    marginBottom: 20,
+    maxWidth: "80%",
+    position: "relative",
+  },
+  sender: {
+    padding: 15,
+    backgroundColor: "#2B68E6",
+    alignSelf: "flex-start",
+    borderRadius: 20,
+    marginLeft: 15,
+    marginBottom: 20,
+    maxWidth: "80%",
+    position: "relative",
+    color: "grey",
   },
 });
