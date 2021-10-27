@@ -4,7 +4,7 @@ import { ListItem, Avatar } from "react-native-elements";
 
 const CustomList = ({ id, chatName, enterChat }) => {
   return (
-    <ListItem key={id} bottomDivider>
+    <ListItem key={id} bottomDivider onPress={() => enterChat(id, chatName)}>
       <Avatar rounded source={require("../assets/dp.png")} />
       <ListItem.Content>
         <ListItem.Title style={{ fontWeight: "800" }}>

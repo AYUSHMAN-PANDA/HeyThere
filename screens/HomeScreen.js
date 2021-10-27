@@ -11,6 +11,7 @@ import { Avatar } from "react-native-elements";
 import CustomList from "../components/CustomList";
 import { auth, db } from "../firebase";
 import { AntDesign, SimpleLineIcons } from "@expo/vector-icons";
+import { StatusBar } from "expo-status-bar";
 
 const HomeScreen = ({ navigation }) => {
   const [chats, setChats] = useState([]);
@@ -66,11 +67,24 @@ const HomeScreen = ({ navigation }) => {
       ),
     });
   }, []);
+
+  const enterChat = (id, chatName) => {
+    navigation.navigate("Chat", {
+      id,
+      chatName,
+    });
+  };
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
       <ScrollView>
         {chats.map(({ id, data: { chatName } }) => (
-          <CustomList key={id} id={id} chatName={chatName} />
+          <CustomList
+            key={id}
+            id={id}
+            chatName={chatName}
+            enterChat={enterChat}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>
